@@ -20,6 +20,7 @@
   "homepage": "https://github.com/thecatrine/NiftClient#readme",
   "dependencies": {
     "@popperjs/core": "^2.10.1",
+    "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.26.0",
     "bootstrap": "^5.1.1",
     "jquery": "^3.6.0"
