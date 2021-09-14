@@ -16,6 +16,7 @@ let TOKEN_METADATA_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8b
 //new web3.PublicKey("6mjLX2PqmAbQuv9zMChBqg4bv2UpADbWEhLNmUHdBiRt");
 
 let CASHIER = new web3.PublicKey("AuK2wzBzM5ZToXdoAigrKQHFVzZfavbzPo82NU2cawnj");
+let CAT = new web3.PublicKey("7keeykNopXVgtLK97nCbarhaetE2351gZ8q7nzBnffJr");
 
 async function connectButton() {
     const getProvider = async () => {
@@ -109,6 +110,7 @@ async function connectButton() {
                 { pubkey: initializerAccount.publicKey, isSigner: true, isWritable: false },
                 { pubkey: signingAuthority[0], isSigner: false, isWritable: false },
                 { pubkey: tempTokenAccount.publicKey, isSigner: true, isWritable: true },
+                { pubkey: CAT, isSigner: false, isWritable: true },
                 { pubkey: CASHIER, isSigner: false, isWritable: true },
                 { pubkey: spl_token.TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
                 { pubkey: mintAcct.publicKey, isSigner: true, isWritable: true },
