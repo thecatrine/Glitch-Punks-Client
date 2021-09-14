@@ -5,11 +5,17 @@ import BN from "bn.js";
 
 import * as spl_token from "@solana/spl-token";
 
+import bs58 from 'bs58';
+import { sha256 } from 'crypto-hash';
+
 let web3 = solanaWeb3
 
+// Both devnet
 let NFT_PROGRAM_ID = new web3.PublicKey("4x1tR9EdoduSpJsA6ZZYXprSE9VVd47EW9Sby9dq9qFy");
+let TOKEN_METADATA_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+//new web3.PublicKey("6mjLX2PqmAbQuv9zMChBqg4bv2UpADbWEhLNmUHdBiRt");
 
-let CASHIER = new web3.PublicKey("7EEtiweAtCmqiEw6UefkEdiPNPSjV5ssgEgv7ynyPon6");
+let CASHIER = new web3.PublicKey("AuK2wzBzM5ZToXdoAigrKQHFVzZfavbzPo82NU2cawnj");
 
 async function connectButton() {
     const getProvider = async () => {
@@ -62,12 +68,40 @@ async function connectButton() {
             newAccountPubkey: finalAcct.publicKey
         });
 
+        //        const metadataAcct = await web3.PublicKey.findProgramAddress([
+        let seeds = [
+            Buffer.from("metadata", 'utf8'),
+            TOKEN_METADATA_ID.toBuffer(),
+            mintAcct.publicKey.toBuffer(),
+        ];
+        const metadataAcct = await web3.PublicKey.findProgramAddress(seeds, TOKEN_METADATA_ID);
+        const MAX_METADATA_LEN = 679; // TODO don't just rip this number
+        const metadataLamports = await connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN, 'singleGossip');
+        const fundMetadataIx = web3.SystemProgram.transfer({
+            fromPubkey: initializerAccount.publicKey,
+            toPubkey: metadataAcct[0],
+            lamports: metadataLamports,
+        })
+
+        //const escrowAccount = new web3.Account();
+        //const createEscrowAccountIx = web3.SystemProgram.createAccount({
+        //    space: 9,
+        //    lamports: await connection.getMinimumBalanceForRentExemption(9, 'singleGossip'),
+        //    fromPubkey: initializerAccount.publicKey,
+        //    newAccountPubkey: escrowAccount.publicKey,
+        //    programId: NFT_PROGRAM_ID
+        //});
+
         console.log("temp account " + tempTokenAccount.publicKey.toString());
         console.log("mint acct " + mintAcct.publicKey.toString())
+        console.log("metadata address " + metadataAcct[0].toString())
 
         //const cashierAccount = await web3.PublicKey.findProgramAddress([Buffer.from("cashier", 'utf8')], NFT_PROGRAM_ID);
         const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
-        //console.log("cashier account " + cashierAccount);
+
+        // const dataStorage = await web3.PublicKey.findProgramAddress([Buffer.from("state", 'utf8')], NFT_PROGRAM_ID);
+
+        //console.log("cashier account " + escrowAccount.publicKey.toString());
 
         const mintNFTTx = new web3.TransactionInstruction({
             programId: NFT_PROGRAM_ID,
@@ -80,13 +114,17 @@ async function connectButton() {
                 { pubkey: mintAcct.publicKey, isSigner: true, isWritable: true },
                 { pubkey: web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
                 { pubkey: finalAcct.publicKey, isSigner: true, isWritable: false },
+                { pubkey: TOKEN_METADATA_ID, isSigner: false, isWritable: false },
+                { pubkey: metadataAcct[0], isSigner: false, isWritable: true },
+                { pubkey: web3.SystemProgram.programId, isSigner: false, isWritable: false },
+                //{ pubkey: dataStorage[0], isSigner: false, isWritable: false },
             ],
             data: Buffer.from(Uint8Array.of([new BN(1).toArray("le", 0)])),
             //data: Buffer.from(Uint8Array.of(0, ...new BN(expectedAmount).toArray("le", 8)))
         });
 
         const tx = new web3.Transaction()
-            .add(createTempTokenAccountIx, mintAcctIx, finalAcctIx, mintNFTTx);
+            .add(createTempTokenAccountIx, mintAcctIx, finalAcctIx, fundMetadataIx, mintNFTTx);
 
         tx.recentBlockhash = (await connection.getRecentBlockhash('singleGossip')).blockhash;
         tx.feePayer = initializerAccount.publicKey;
@@ -95,6 +133,7 @@ async function connectButton() {
         signedTransaction.partialSign(tempTokenAccount);
         signedTransaction.partialSign(mintAcct);
         signedTransaction.partialSign(finalAcct);
+        //signedTransaction.partialSign(escrowAccount);
 
         const serializedTransaction = signedTransaction.serialize()
         const signature = await connection.sendRawTransaction(
