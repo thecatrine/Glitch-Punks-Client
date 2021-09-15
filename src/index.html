@@ -4,32 +4,41 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Nifty</title>
+    <title>Glitch Punks</title>
 
     <link rel="stylesheet" href="./custom.scss" />
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col">
+    <div id="fullHeight">
+        <div class="container h-50">
+            <div class="row h-25">
+                <div class="col">
+
+                </div>
+                <div class="col">
+                    <h1>Glitch Punks</h1>
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" id="connectButton">Connect Phantom Wallet</button>
+                </div>
+            </div>
+            <div class="row h-25">
+                <div class="col">
+                    <p>Mint yourself a Glitch Punk: <span id="howMany"></span></p>
+                    <p>0.03 SOL + transaction fees</p>
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" id="mintButton">Mint NFT</button>
+                </div>
+            </div>
+            <div class="row h-25" id="alerts">
 
             </div>
-            <div class="col">
-                <h1>Nifty</h1>
-            </div>
-            <div class="col">
-                <button class="btn btn-primary" id="connectButton">Connect Phantom Wallet</button>
-            </div>
         </div>
-        <div class="row">
-            <div class="col">
-                This is some content
-            </div>
-        </div>
+        <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js" crossorigin="anonymous"></script>
+        <script type="module" src="./main.js"></script>
     </div>
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js" crossorigin="anonymous"></script>
-    <script type="module" src="./main.js"></script>
 </body>
 
 </html>
