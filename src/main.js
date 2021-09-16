@@ -15,12 +15,12 @@ let NFT_PROGRAM_ID = new web3.PublicKey("4x1tR9EdoduSpJsA6ZZYXprSE9VVd47EW9Sby9d
 let TOKEN_METADATA_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
 //new web3.PublicKey("6mjLX2PqmAbQuv9zMChBqg4bv2UpADbWEhLNmUHdBiRt");
 
-let CASHIER = new web3.PublicKey("AuK2wzBzM5ZToXdoAigrKQHFVzZfavbzPo82NU2cawnj");
+let CASHIER = new web3.PublicKey("BkHFN4TvyWgDx3UsaJJoUbnAi4uKAniBvvwQUPPe2UDo");
 let CAT = new web3.PublicKey("7keeykNopXVgtLK97nCbarhaetE2351gZ8q7nzBnffJr");
 
 let FEE_LAMPORTS = 30_000_000;
 
-let TOTAL_NUMBER = 50;
+let TOTAL_NUMBER = 1000;
 
 let wallet_initialized = false;
 let connection = null;
@@ -34,8 +34,8 @@ async function getHowManySold() {
     $('#howMany').text(number + "/" + TOTAL_NUMBER);
 }
 
-async function connectButton() {
-    const getProvider = async () => {
+async function connectButton(which) {
+    const getProviderPhantom = async () => {
         if ("solana" in window) {
             const provider = window.solana;
             if (provider.isPhantom) {
@@ -47,8 +47,21 @@ async function connectButton() {
         }
     };
 
+    const getProviderSolflare = async () => {
+        if ("solflare" in window) {
+            const provider = window.solflare;
+
+            return provider;
+        }
+    }
+
     if (!wallet_initialized) {
-        provider = await getProvider();
+        console.log("initializing " + which);
+        if (which == 'phantom') {
+            provider = await getProviderPhantom();
+        } else if (which == 'solflare') {
+            provider = await getProviderSolflare();
+        }
         provider.connect();
 
         provider.on("connect", async () => {
@@ -56,7 +69,7 @@ async function connectButton() {
         })
 
         connection = new web3.Connection(
-            web3.clusterApiUrl('devnet'),
+            web3.clusterApiUrl('mainnet-beta'),
             'confirmed',
         );
 
@@ -64,11 +77,40 @@ async function connectButton() {
 
         await getHowManySold();
 
-        $('#connectButton').prop('disabled', true);
+        $('#connectButtonSolflare').prop('disabled', true);
+        $('#connectButtonPhantom').prop('disabled', true);
         $('#mintButton').prop('disabled', false);
     } else {
         console.log('already initialized wallet');
     }
+}
+
+window.setUpCashier = async () => {
+    let buf = Buffer.from("lolno", "base64");
+    const cashierAccount = new web3.Account(buf);
+    const createCashierAccountIx = web3.SystemProgram.createAccount({
+        space: 9,
+        lamports: await connection.getMinimumBalanceForRentExemption(9, 'singleGossip'),
+        fromPubkey: provider.publicKey,
+        newAccountPubkey: cashierAccount.publicKey,
+        programId: NFT_PROGRAM_ID
+    });
+
+    const tx = new web3.Transaction().add(createCashierAccountIx);
+    tx.recentBlockhash = (await connection.getRecentBlockhash('singleGossip')).blockhash;
+    tx.feePayer = provider.publicKey;
+
+    let signedTransaction = await provider.signTransaction(tx);
+    signedTransaction.partialSign(cashierAccount);
+
+    const serializedTransaction = signedTransaction.serialize()
+    const signature = await connection.sendRawTransaction(
+        serializedTransaction,
+        { skipPreflight: false, preflightCommitment: 'singleGossip' },
+    );
+
+    console.log(cashierAccount.secretKey.toString('base64'));
+    console.log(cashierAccount.publicKey.toString());
 }
 
 async function mintNFT() {
@@ -178,27 +220,36 @@ async function mintNFT() {
     signedTransaction.partialSign(finalAcct);
     //signedTransaction.partialSign(escrowAccount);
 
-    const serializedTransaction = signedTransaction.serialize()
-    const signature = await connection.sendRawTransaction(
-        serializedTransaction,
-        { skipPreflight: false, preflightCommitment: 'singleGossip' },
-    );
+    try {
+        const serializedTransaction = signedTransaction.serialize()
+        const signature = await connection.sendRawTransaction(
+            serializedTransaction,
+            { skipPreflight: false, preflightCommitment: 'singleGossip' },
+        );
 
-    console.log("Success!");
+        console.log("Success!");
 
-    await getHowManySold();
+        await getHowManySold();
 
-    displayToast();
+        displayToast("Check your wallet! https://explorer.solana.com/tx/" + signature);
+    } catch {
+        displayToast("There's been an error.")
+    }
 }
 
-function displayToast() {
-    $('#alerts').append(`Check your wallet!<br>`);
+function displayToast(msg) {
+    $('#alerts').append(msg + "<br>"); // TODO fix wrapping being wonky
 }
 
 
-$('#connectButton').on('click', () => {
+$('#connectButtonPhantom').on('click', () => {
     console.log("connect");
-    connectButton();
+    connectButton('phantom');
+});
+
+$('#connectButtonSolflare').on('click', () => {
+    console.log("connect");
+    connectButton('solflare');
 });
 
 $('#mintButton').on('click', () => {
