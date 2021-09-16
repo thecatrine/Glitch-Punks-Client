@@ -167,15 +167,6 @@ async function mintNFT() {
         lamports: metadataLamports,
     })
 
-    //const escrowAccount = new web3.Account();
-    //const createEscrowAccountIx = web3.SystemProgram.createAccount({
-    //    space: 9,
-    //    lamports: await connection.getMinimumBalanceForRentExemption(9, 'singleGossip'),
-    //    fromPubkey: initializerAccount.publicKey,
-    //    newAccountPubkey: escrowAccount.publicKey,
-    //    programId: NFT_PROGRAM_ID
-    //});
-
     console.log("temp account " + tempTokenAccount.publicKey.toString());
     console.log("mint acct " + mintAcct.publicKey.toString())
     console.log("metadata address " + metadataAcct[0].toString())
