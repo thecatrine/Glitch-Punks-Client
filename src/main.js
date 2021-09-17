@@ -222,7 +222,7 @@ async function mintNFT() {
 
         await getHowManySold();
 
-        displayToast("Check your wallet! https://explorer.solana.com/tx/" + signature);
+        displayToast("https://solscan.io/tx/" + signature);
     } catch {
         displayToast("There's been an error.")
     }
