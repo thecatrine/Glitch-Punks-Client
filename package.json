@@ -27,6 +27,7 @@
     "bs58": "^4.0.1",
     "buffer": "^6.0.1",
     "Buffer": "*",
+    "buffer-layout": "^1.2.2",
     "crypto-hash": "^1.3.0",
     "jquery": "^3.6.0"
   },

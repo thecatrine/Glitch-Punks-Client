@@ -4,6 +4,7 @@ import $ from 'jquery';
 import BN from "bn.js";
 
 import * as spl_token from "@solana/spl-token";
+import * as BufferLayout from 'buffer-layout';
 
 import bs58 from 'bs58';
 import { sha256 } from 'crypto-hash';
@@ -26,12 +27,48 @@ let wallet_initialized = false;
 let connection = null;
 let provider = null;
 
+
+
 async function getHowManySold() {
     let info = await connection.getAccountInfo(CASHIER, "singleGossip");
     let number = info.data.readBigInt64LE([1]) - BigInt(1);
     console.log(number);
 
     $('#howMany').text(number + "/" + TOTAL_NUMBER);
+}
+
+async function getDisplayTokens() {
+    console.log(provider);
+    let accounts = await connection.getTokenAccountsByOwner(
+        provider._publicKey,
+        { programId: spl_token.TOKEN_PROGRAM_ID, }
+    );
+
+    accounts.value.forEach(async aaa => {
+        let token_0 = aaa.account.data;
+
+        let data = Buffer.from(token_0);
+        token_0 = spl_token.AccountLayout.decode(data);
+
+        console.log(token_0);
+
+        const metadataAccountId = await web3.PublicKey.findProgramAddress(
+            [
+                Buffer.from("metadata", 'utf8'),
+                TOKEN_METADATA_ID.toBuffer(),
+                token_0.mint,
+            ], TOKEN_METADATA_ID
+        );
+        console.log(metadataAccountId[0].toString());
+
+        let a = await fetch("https://api.all.art/v1/solana/" + metadataAccountId[0].toString());
+        let b = await a.json();
+
+        console.log(b.Preview_URL);
+        console.log(b.Properties.attributes);
+        displayNFT(b.Preview_URL, b.Properties.attributes);
+    });
+
 }
 
 async function connectButton(which) {
@@ -66,16 +103,8 @@ async function connectButton(which) {
 
         provider.on("connect", async () => {
             wallet_initialized = true;
+            await getDisplayTokens();
         })
-
-        connection = new web3.Connection(
-            web3.clusterApiUrl('mainnet-beta'),
-            'confirmed',
-        );
-
-        console.log("Connected to rpc");
-
-        await getHowManySold();
 
         $('#connectButtonSolflare').prop('disabled', true);
         $('#connectButtonPhantom').prop('disabled', true);
@@ -85,7 +114,30 @@ async function connectButton(which) {
     }
 }
 
+$('#connectButtonPhantom').on('click', () => {
+    console.log("connect");
+    connectButton('phantom');
+});
+
+$('#connectButtonSolflare').on('click', () => {
+    console.log("connect");
+    connectButton('solflare');
+});
+
+async function connectRPC() {
+    connection = new web3.Connection(
+        web3.clusterApiUrl('mainnet-beta'),
+        'confirmed',
+    );
+
+    console.log("Connected to rpc");
+
+    await getHowManySold();
+}
+
 window.setUpCashier = async () => {
+    const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
+
     let buf = Buffer.from("lolno", "base64");
     const cashierAccount = new web3.Account(buf);
     const createCashierAccountIx = web3.SystemProgram.createAccount({
@@ -172,7 +224,7 @@ async function mintNFT() {
     console.log("metadata address " + metadataAcct[0].toString())
 
     //const cashierAccount = await web3.PublicKey.findProgramAddress([Buffer.from("cashier", 'utf8')], NFT_PROGRAM_ID);
-    const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
+
 
     // const dataStorage = await web3.PublicKey.findProgramAddress([Buffer.from("state", 'utf8')], NFT_PROGRAM_ID);
 
@@ -232,16 +284,10 @@ function displayToast(msg) {
     $('#alerts').append(msg + "<br>"); // TODO fix wrapping being wonky
 }
 
+function displayNFT(url, attributes) {
+    $('#display').append("<img class='nft' crossorigin='anonymous' src='" + url + "'></img>");
+}
 
-$('#connectButtonPhantom').on('click', () => {
-    console.log("connect");
-    connectButton('phantom');
-});
-
-$('#connectButtonSolflare').on('click', () => {
-    console.log("connect");
-    connectButton('solflare');
-});
 
 $('#mintButton').on('click', () => {
     console.log('mint');
@@ -250,3 +296,7 @@ $('#mintButton').on('click', () => {
 $('#mintButton').prop('disabled', true);
 
 $('#howMany').text("?/" + TOTAL_NUMBER);
+
+$(window).on('load', async () => {
+    await connectRPC();
+})
