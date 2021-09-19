@@ -166,6 +166,7 @@ window.setUpCashier = async () => {
 }
 
 async function mintNFT() {
+    const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
     if (!wallet_initialized) {
         console.log("Error, wallet not initialized");
         return
@@ -273,6 +274,7 @@ async function mintNFT() {
         console.log("Success!");
 
         await getHowManySold();
+        await getDisplayTokens();
 
         displayToast("https://solscan.io/tx/" + signature);
     } catch {
