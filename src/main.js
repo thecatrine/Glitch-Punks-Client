@@ -70,8 +70,8 @@ async function getDisplayTokens() {
         let a = await fetch("https://api.all.art/v1/solana/" + metadataAccountId[0].toString());
         let b = await a.json();
 
-        console.log(b.Preview_URL);
-        console.log(b.Properties.attributes);
+        //console.log(b.Preview_URL);
+        //console.log(b.Properties.attributes);
         displayNFT(b);
     }));
     $('#gallery-loading-text').addClass('d-none');
