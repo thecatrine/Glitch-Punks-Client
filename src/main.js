@@ -289,7 +289,11 @@ async function mintNFT() {
     }
 }
 
+let visibleToasts = []
+
 function displayToast(msg) {
+    visisibleToasts.push(msg)
+
     $('#alerts').append(msg + "<br>"); // TODO fix wrapping being wonky
 }
 
