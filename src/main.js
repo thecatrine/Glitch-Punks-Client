@@ -300,7 +300,7 @@ function displayNFT(nft) {
     let mint = nft.Mint;
     let url = nft.Preview_URL;
     let name = nft.Title;
-    let attributes = nft.Properties.attributes;
+//    let attributes = nft.Properties.attributes;
     if (!visibleNFTs.includes(mint)) {
         visibleNFTDivs.push("\
         <div class='col-sm-6'>\
