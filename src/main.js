@@ -283,19 +283,26 @@ async function mintNFT() {
         await getHowManySold();
         await getDisplayTokens();
 
-        displayToast("https://solscan.io/tx/" + signature);
+        displayToast("<a href='https://solscan.io/tx/" + signature + "'>View Transaction</a>");
     } catch {
         displayToast("There's been an error.")
     }
 }
 
-let visibleToasts = []
+let visibleToasts = [];
 
 function displayToast(msg) {
-    visisibleToasts.push(msg)
+    visibleToasts.push(msg);
 
-    $('#alerts').append(msg + "<br>"); // TODO fix wrapping being wonky
+    let string = "";
+    visibleToasts.forEach((x) => {
+        string = string + msg + "<br />";
+    });
+
+    $('#alert-div').html(string); // TODO fix wrapping being wonky
 }
+
+window.displayToast = displayToast;
 
 let visibleNFTs = []
 let visibleNFTDivs = []
@@ -304,14 +311,25 @@ function displayNFT(nft) {
     let mint = nft.Mint;
     let url = nft.Preview_URL;
     let name = nft.Title;
-//    let attributes = nft.Properties.attributes;
+
+    let attributes = [];
+    if (nft.Properties && nft.Properties.attributes) {
+        nft.Properties.attributes.forEach((attr) => {
+            attributes.push(attr.trait_type + ": " + attr.value + "<br />");
+        })
+    }
     if (!visibleNFTs.includes(mint)) {
-        visibleNFTDivs.push("\
+        let string = "\
         <div class='col-sm-6'>\
-        <div class='card'> \
-        <img class='nft' crossorigin='anonymous' src='" + url + "'></img>\
-        <div class='card-body'><h3>"+ name + "</h3></div>\
-        </div ></div>");
+        <div class='card' style='width: 18rem;'> \
+        <img class='nft p-2' crossorigin='anonymous' src='" + url + "'></img>\
+        <div class='card-body p-2'><h3>"+ name + "</h3></div>\
+        <div class='card-attributes p-2'>";
+        attributes.forEach((attr_str) => {
+            string = string + attr_str;
+        })
+        string = string + "</div></div ></div>";
+        visibleNFTDivs.push(string);
         visibleNFTs.push(mint);
     }
 }
