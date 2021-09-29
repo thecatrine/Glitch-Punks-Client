@@ -38,13 +38,19 @@ async function getHowManySold() {
 }
 
 async function getDisplayTokens() {
+    $('#gallery-loading-text').text('Loading...');
     console.log(provider);
     let accounts = await connection.getTokenAccountsByOwner(
         provider._publicKey,
         { programId: spl_token.TOKEN_PROGRAM_ID, }
     );
 
-    accounts.value.forEach(async aaa => {
+    if (accounts.value.length == 0) {
+        $('#gallery-loading-text').text('Mint or purchase a Glitch Punk to view it here.');
+        return;
+    }
+
+    await Promise.all(accounts.value.map(async aaa => {
         let token_0 = aaa.account.data;
 
         let data = Buffer.from(token_0);
@@ -66,9 +72,10 @@ async function getDisplayTokens() {
 
         console.log(b.Preview_URL);
         console.log(b.Properties.attributes);
-        displayNFT(b.Preview_URL, b.Properties.attributes);
-    });
-
+        displayNFT(b);
+    }));
+    $('#gallery-loading-text').addClass('d-none');
+    renderNFTs();
 }
 
 async function connectButton(which) {
@@ -286,8 +293,30 @@ function displayToast(msg) {
     $('#alerts').append(msg + "<br>"); // TODO fix wrapping being wonky
 }
 
-function displayNFT(url, attributes) {
-    $('#display').append("<img class='nft' crossorigin='anonymous' src='" + url + "'></img>");
+let visibleNFTs = []
+let visibleNFTDivs = []
+
+function displayNFT(nft) {
+    let mint = nft.Mint;
+    let url = nft.Preview_URL;
+    let name = nft.Title;
+    let attributes = nft.Properties.attributes;
+    if (!visibleNFTs.includes(mint)) {
+        visibleNFTDivs.push("\
+        <div class='col-sm-6'>\
+        <div class='card'> \
+        <img class='nft' crossorigin='anonymous' src='" + url + "'></img>\
+        <div class='card-body'><h3>"+ name + "</h3></div>\
+        </div ></div>");
+        visibleNFTs.push(mint);
+    }
+}
+
+function renderNFTs() {
+    $('#gallery-div').html('');
+    visibleNFTDivs.forEach((item) => {
+        $('#gallery-div').append(item);
+    });
 }
 
 
@@ -296,6 +325,26 @@ $('#mintButton').on('click', () => {
     mintNFT();
 });
 $('#mintButton').prop('disabled', true);
+
+$('#gallery-nav-item').on('click', async () => {
+    $('#gallery-nav-item').addClass('active');
+    $('#mint-nav-item').removeClass('active');
+
+    $('#mint-div').addClass('d-none');
+    $('#gallery-div').removeClass('d-none');
+
+    if (wallet_initialized) {
+        await getDisplayTokens();
+    }
+});
+
+$('#mint-nav-item').on('click', () => {
+    $('#gallery-nav-item').removeClass('active');
+    $('#mint-nav-item').addClass('active');
+
+    $('#mint-div').removeClass('d-none');
+    $('#gallery-div').addClass('d-none');
+});
 
 $('#howMany').text("?/" + TOTAL_NUMBER);
 

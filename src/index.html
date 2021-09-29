@@ -11,23 +11,28 @@
 
 <body>
     <div id="fullHeight">
-        <div class="container h-50">
-            <div class="row h-25">
-                <div class="col">
-
-                </div>
-                <div class="col">
-                    <h1>Glitch Punks</h1>
-                </div>
-                <div class="col">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Glitch Punks</a>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="mint-nav-item" href="#">Mint</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="gallery-nav-item">Gallery</a>
+                    </li>
+                </ul>
+                <div class="navbar-item">
                     <button class="btn btn-primary" id="connectButtonPhantom">Connect Phantom</button>
                     <button class="btn btn-primary" id="connectButtonSolflare">Connect Solflare</button>
                 </div>
+
             </div>
+        </nav>
+        <div class="container h-100" id="mint-div">
             <div class="row h-25">
                 <div class="col">
                     <p><span id="howMany"></span> minted!</p>
-                    <a href="gallery.html">Visit gallery</a>
                 </div>
                 <div class="col">
                     <p>Mint yourself a Glitch Punk</p>
@@ -35,12 +40,9 @@
                     <button class="btn btn-primary" id="mintButton">Mint NFT</button>
                 </div>
             </div>
-            <div class="row h-25" id="alerts">
-
-            </div>
-            <div class="row h-25" id="display">
-
-            </div>
+        </div>
+        <div class="container h-100" id="gallery-div">
+            <span id="gallery-loading-text">Connect your wallet to view Glitch Punks</span>
         </div>
         <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js" crossorigin="anonymous"></script>
         <script type="module" src="./main.js"></script>
