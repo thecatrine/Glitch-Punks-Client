@@ -133,7 +133,8 @@ $('#connectButtonSolflare').on('click', () => {
 
 async function connectRPC() {
     connection = new web3.Connection(
-        web3.clusterApiUrl('mainnet-beta'),
+	"https://solana-api.projectserum.com",
+//        web3.clusterApiUrl('mainnet-beta'),
         'confirmed',
     );
 
