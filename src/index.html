@@ -29,7 +29,7 @@
 
             </div>
         </nav>
-        <div class="container h-100" id="mint-div">
+        <div class="container h-75 p-3" id="mint-div">
             <div class="row h-25">
                 <div class="col">
                     <p><span id="howMany"></span> minted!</p>
@@ -39,9 +39,12 @@
                     <p>0.03 SOL + transaction fees</p>
                     <button class="btn btn-primary" id="mintButton">Mint NFT</button>
                 </div>
+                <div class="container" id="alert-div">
+
+                </div>
             </div>
         </div>
-        <div class="container h-100 d-none" id="gallery-div">
+        <div class="container p-3 d-none" id="gallery-div">
             <span id="gallery-loading-text">Connect your wallet to view Glitch Punks</span>
         </div>
         <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js" crossorigin="anonymous"></script>
