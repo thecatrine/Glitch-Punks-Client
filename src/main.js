@@ -313,7 +313,6 @@ function displayNFT(nft) {
     }
     if (!visibleNFTs.includes(mint)) {
         let string = "\
-        <div class='col-sm-6'>\
         <div class='card' style='width: 18rem;'> \
         <img class='nft p-2' crossorigin='anonymous' src='" + url + "'></img>\
         <div class='card-body p-2'><h3>"+ name + "</h3></div>\
@@ -321,7 +320,7 @@ function displayNFT(nft) {
         attributes.forEach((attr_str) => {
             string = string + attr_str;
         })
-        string = string + "</div></div ></div>";
+        string = string + "</div></div >";
         visibleNFTDivs.push(string);
         visibleNFTs.push(mint);
     }
