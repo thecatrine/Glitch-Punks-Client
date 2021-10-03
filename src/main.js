@@ -51,28 +51,30 @@ async function getDisplayTokens() {
     }
 
     await Promise.all(accounts.value.map(async aaa => {
-        let token_0 = aaa.account.data;
+	try {
+            let token_0 = aaa.account.data;
 
-        let data = Buffer.from(token_0);
-        token_0 = spl_token.AccountLayout.decode(data);
+            let data = Buffer.from(token_0);
+            token_0 = spl_token.AccountLayout.decode(data);
 
-        console.log(token_0);
+            console.log(token_0);
 
-        const metadataAccountId = await web3.PublicKey.findProgramAddress(
-            [
-                Buffer.from("metadata", 'utf8'),
-                TOKEN_METADATA_ID.toBuffer(),
-                token_0.mint,
-            ], TOKEN_METADATA_ID
-        );
-        console.log(metadataAccountId[0].toString());
+            const metadataAccountId = await web3.PublicKey.findProgramAddress(
+		[
+                    Buffer.from("metadata", 'utf8'),
+                    TOKEN_METADATA_ID.toBuffer(),
+                    token_0.mint,
+		], TOKEN_METADATA_ID
+            );
+            console.log(metadataAccountId[0].toString());
 
-        let a = await fetch("https://api.all.art/v1/solana/" + metadataAccountId[0].toString());
-        let b = await a.json();
+            let a = await fetch("https://api.all.art/v1/solana/" + metadataAccountId[0].toString());
+            let b = await a.json();
 
-        //console.log(b.Preview_URL);
-        //console.log(b.Properties.attributes);
-        displayNFT(b);
+            displayNFT(b);
+	} catch (error) {
+	    console.error(error);
+	}
     }));
     $('#gallery-loading-text').addClass('d-none');
     renderNFTs();
