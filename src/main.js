@@ -232,13 +232,6 @@ async function mintNFT() {
     console.log("mint acct " + mintAcct.publicKey.toString())
     console.log("metadata address " + metadataAcct[0].toString())
 
-    //const cashierAccount = await web3.PublicKey.findProgramAddress([Buffer.from("cashier", 'utf8')], NFT_PROGRAM_ID);
-
-
-    // const dataStorage = await web3.PublicKey.findProgramAddress([Buffer.from("state", 'utf8')], NFT_PROGRAM_ID);
-
-    //console.log("cashier account " + escrowAccount.publicKey.toString());
-
     const mintNFTTx = new web3.TransactionInstruction({
         programId: NFT_PROGRAM_ID,
         keys: [
@@ -270,7 +263,6 @@ async function mintNFT() {
     signedTransaction.partialSign(tempTokenAccount);
     signedTransaction.partialSign(mintAcct);
     signedTransaction.partialSign(finalAcct);
-    //signedTransaction.partialSign(escrowAccount);
 
     try {
         const serializedTransaction = signedTransaction.serialize()
