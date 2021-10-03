@@ -9,15 +9,13 @@ import * as BufferLayout from 'buffer-layout';
 import bs58 from 'bs58';
 import { sha256 } from 'crypto-hash';
 
-let web3 = solanaWeb3
-
 // Both devnet
-let NFT_PROGRAM_ID = new web3.PublicKey("4x1tR9EdoduSpJsA6ZZYXprSE9VVd47EW9Sby9dq9qFy");
-let TOKEN_METADATA_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
-//new web3.PublicKey("6mjLX2PqmAbQuv9zMChBqg4bv2UpADbWEhLNmUHdBiRt");
+let NFT_PROGRAM_ID = new solanaWeb3.PublicKey("4x1tR9EdoduSpJsA6ZZYXprSE9VVd47EW9Sby9dq9qFy");
+let TOKEN_METADATA_ID = new solanaWeb3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+//new solanaWeb3.PublicKey("6mjLX2PqmAbQuv9zMChBqg4bv2UpADbWEhLNmUHdBiRt");
 
-let CASHIER = new web3.PublicKey("BkHFN4TvyWgDx3UsaJJoUbnAi4uKAniBvvwQUPPe2UDo");
-let CAT = new web3.PublicKey("7keeykNopXVgtLK97nCbarhaetE2351gZ8q7nzBnffJr");
+let CASHIER = new solanaWeb3.PublicKey("BkHFN4TvyWgDx3UsaJJoUbnAi4uKAniBvvwQUPPe2UDo");
+let CAT = new solanaWeb3.PublicKey("7keeykNopXVgtLK97nCbarhaetE2351gZ8q7nzBnffJr");
 
 let FEE_LAMPORTS = 100_000_000;
 
@@ -59,7 +57,7 @@ async function getDisplayTokens() {
 
             console.log(token_0);
 
-            const metadataAccountId = await web3.PublicKey.findProgramAddress(
+            const metadataAccountId = await solanaWeb3.PublicKey.findProgramAddress(
 		[
                     Buffer.from("metadata", 'utf8'),
                     TOKEN_METADATA_ID.toBuffer(),
@@ -134,9 +132,9 @@ $('#connectButtonSolflare').on('click', () => {
 });
 
 async function connectRPC() {
-    connection = new web3.Connection(
+    connection = new solanaWeb3.Connection(
 	"https://solana-api.projectserum.com",
-//        web3.clusterApiUrl('mainnet-beta'),
+//        solanaWeb3.clusterApiUrl('mainnet-beta'),
         'confirmed',
     );
 
@@ -146,11 +144,11 @@ async function connectRPC() {
 }
 
 window.setUpCashier = async () => {
-    const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
+    const signingAuthority = await solanaWeb3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
 
     let buf = Buffer.from("lolno", "base64");
-    const cashierAccount = new web3.Account(buf);
-    const createCashierAccountIx = web3.SystemProgram.createAccount({
+    const cashierAccount = new solanaWeb3.Account(buf);
+    const createCashierAccountIx = solanaWeb3.SystemProgram.createAccount({
         space: 9,
         lamports: await connection.getMinimumBalanceForRentExemption(9, 'singleGossip'),
         fromPubkey: provider.publicKey,
@@ -158,7 +156,7 @@ window.setUpCashier = async () => {
         programId: NFT_PROGRAM_ID
     });
 
-    const tx = new web3.Transaction().add(createCashierAccountIx);
+    const tx = new solanaWeb3.Transaction().add(createCashierAccountIx);
     tx.recentBlockhash = (await connection.getRecentBlockhash('singleGossip')).blockhash;
     tx.feePayer = provider.publicKey;
 
@@ -176,7 +174,7 @@ window.setUpCashier = async () => {
 }
 
 async function mintNFT() {
-    const signingAuthority = await web3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
+    const signingAuthority = await solanaWeb3.PublicKey.findProgramAddress([Buffer.from("mint_authority", 'utf8')], NFT_PROGRAM_ID);
     if (!wallet_initialized) {
         console.log("Error, wallet not initialized");
         return
@@ -187,8 +185,8 @@ async function mintNFT() {
     let initializerAccount = provider;
 
     // Create temp account for fees
-    const tempTokenAccount = new web3.Account();
-    const createTempTokenAccountIx = web3.SystemProgram.createAccount({
+    const tempTokenAccount = new solanaWeb3.Account();
+    const createTempTokenAccountIx = solanaWeb3.SystemProgram.createAccount({
         programId: NFT_PROGRAM_ID, // Owned by the NFT program
         space: 0, //spl_token .AccountLayout.span,
         lamports: FEE_LAMPORTS,
@@ -197,8 +195,8 @@ async function mintNFT() {
         newAccountPubkey: tempTokenAccount.publicKey
     });
     // Create temp account for mint
-    const mintAcct = new web3.Account();
-    const mintAcctIx = web3.SystemProgram.createAccount({
+    const mintAcct = new solanaWeb3.Account();
+    const mintAcctIx = solanaWeb3.SystemProgram.createAccount({
         programId: spl_token.TOKEN_PROGRAM_ID, // Owned by the token program
         space: spl_token.MintLayout.span,
         lamports: await connection.getMinimumBalanceForRentExemption(spl_token.MintLayout.span, 'singleGossip'),
@@ -206,8 +204,8 @@ async function mintNFT() {
         newAccountPubkey: mintAcct.publicKey
     });
     // Create account to hold NFT
-    const finalAcct = new web3.Account();
-    const finalAcctIx = web3.SystemProgram.createAccount({
+    const finalAcct = new solanaWeb3.Account();
+    const finalAcctIx = solanaWeb3.SystemProgram.createAccount({
         programId: spl_token.TOKEN_PROGRAM_ID, // Owned by the token program
         space: spl_token.AccountLayout.span,
         lamports: await connection.getMinimumBalanceForRentExemption(spl_token.AccountLayout.span, 'singleGossip'),
@@ -215,16 +213,16 @@ async function mintNFT() {
         newAccountPubkey: finalAcct.publicKey
     });
 
-    //        const metadataAcct = await web3.PublicKey.findProgramAddress([
+    //        const metadataAcct = await solanaWeb3.PublicKey.findProgramAddress([
     let seeds = [
         Buffer.from("metadata", 'utf8'),
         TOKEN_METADATA_ID.toBuffer(),
         mintAcct.publicKey.toBuffer(),
     ];
-    const metadataAcct = await web3.PublicKey.findProgramAddress(seeds, TOKEN_METADATA_ID);
+    const metadataAcct = await solanaWeb3.PublicKey.findProgramAddress(seeds, TOKEN_METADATA_ID);
     const MAX_METADATA_LEN = 679; // TODO don't just rip this number
     const metadataLamports = await connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN, 'singleGossip');
-    const fundMetadataIx = web3.SystemProgram.transfer({
+    const fundMetadataIx = solanaWeb3.SystemProgram.transfer({
         fromPubkey: initializerAccount.publicKey,
         toPubkey: metadataAcct[0],
         lamports: metadataLamports,
@@ -234,7 +232,7 @@ async function mintNFT() {
     console.log("mint acct " + mintAcct.publicKey.toString())
     console.log("metadata address " + metadataAcct[0].toString())
 
-    const mintNFTTx = new web3.TransactionInstruction({
+    const mintNFTTx = new solanaWeb3.TransactionInstruction({
         programId: NFT_PROGRAM_ID,
         keys: [
             { pubkey: initializerAccount.publicKey, isSigner: true, isWritable: false },
@@ -244,18 +242,18 @@ async function mintNFT() {
             { pubkey: CASHIER, isSigner: false, isWritable: true },
             { pubkey: spl_token.TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
             { pubkey: mintAcct.publicKey, isSigner: true, isWritable: true },
-            { pubkey: web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+            { pubkey: solanaWeb3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
             { pubkey: finalAcct.publicKey, isSigner: true, isWritable: false },
             { pubkey: TOKEN_METADATA_ID, isSigner: false, isWritable: false },
             { pubkey: metadataAcct[0], isSigner: false, isWritable: true },
-            { pubkey: web3.SystemProgram.programId, isSigner: false, isWritable: false },
+            { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
             //{ pubkey: dataStorage[0], isSigner: false, isWritable: false },
         ],
         data: Buffer.from(Uint8Array.of([new BN(1).toArray("le", 0)])),
         //data: Buffer.from(Uint8Array.of(0, ...new BN(expectedAmount).toArray("le", 8)))
     });
 
-    const tx = new web3.Transaction()
+    const tx = new solanaWeb3.Transaction()
         .add(createTempTokenAccountIx, mintAcctIx, finalAcctIx, fundMetadataIx, mintNFTTx);
 
     tx.recentBlockhash = (await connection.getRecentBlockhash('singleGossip')).blockhash;
