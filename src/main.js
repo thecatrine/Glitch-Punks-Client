@@ -19,7 +19,7 @@ let TOKEN_METADATA_ID = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8b
 let CASHIER = new web3.PublicKey("BkHFN4TvyWgDx3UsaJJoUbnAi4uKAniBvvwQUPPe2UDo");
 let CAT = new web3.PublicKey("7keeykNopXVgtLK97nCbarhaetE2351gZ8q7nzBnffJr");
 
-let FEE_LAMPORTS = 30_000_000;
+let FEE_LAMPORTS = 100_000_000;
 
 let TOTAL_NUMBER = 1000;
 
