@@ -32,6 +32,7 @@
     "jquery": "^3.6.0"
   },
   "devDependencies": {
+    "@parcel/transformer-image": "^2.0.0-rc.0",
     "@parcel/transformer-sass": "^2.0.0-rc.0",
     "parcel": "*",
     "sass": "^1.39.2"
